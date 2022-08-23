@@ -7,7 +7,6 @@ const connection = createConnection({
     port: process.env.dbPort,
     database: process.env.database,
     multipleStatements: true
-    // connection limit: 10
 });
 
 module.exports = connection;
