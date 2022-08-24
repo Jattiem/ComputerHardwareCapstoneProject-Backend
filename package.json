@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -22,5 +23,8 @@
     "mysql": "^2.18.1",
     "nodemon": "^2.0.19",
     "web-token": "^1.1.4"
+  },
+  "engines": {
+    "node": "16.15.1"
   }
 }

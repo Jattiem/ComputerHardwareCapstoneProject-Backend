@@ -7,7 +7,7 @@ app.use(express.json()); // Enable the server to handle JSON requests
 app.use(cors()); // Dont let local development give errors
 
 app.get("/", (req, res) => {
-  res.json({ msg: "Welcome to Gaming Hardware" });
+  res.status(200).json({ msg: "Welcome to Gaming Hardware" });
 });
 
 const productsRoute = require("./routes/products");
