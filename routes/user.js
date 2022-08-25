@@ -4,9 +4,10 @@ const con = require("../config/dbconn");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const middleware = require("../middleware/authorization");
+const bodyParser = require('body-parser');
 
 //gets users from database
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
   try {
     con.query("SELECT * FROM users", (err, result) => {
       if (err) throw err;
@@ -39,7 +40,7 @@ router.post("/register", (req, res) => {
       email,
       // We sending the hash value to be stored witin the table
       password: hash,
-      phonenumber,
+      phonenumber
     };
     con.query(sql, user, (err, result) => {
       if (err) throw err;
@@ -100,6 +101,22 @@ router.post("/login", (req, res) => {
   }
 });
 
+//Delete user
+router.delete('/:id', (req, res)=>{
+  const deleteUser = `
+      DELETE FROM users WHERE id = ${req.params.id};
+  `
+
+  con.query(deleteUser, (err, result)=>{
+      if (err) throw err
+      res.json({
+          status: 204,
+          msg: 'User Deleted Successfully',
+          users: result
+      })
+  })
+})
+
 // Verify
 router.get("/verify", (req, res) => {
   const token = req.header("x-auth-token");
@@ -115,7 +132,7 @@ router.get("/verify", (req, res) => {
   });
 });
 
-router.get("/", middleware, (req, res) => {
+router.get("/", middleware, (_req, res) => {
   try {
     let sql = "SELECT * FROM users";
     con.query(sql, (err, result) => {
@@ -141,5 +158,25 @@ router.get("/:id", (req, res) => {
     res.status(400).send(error);
   }
 });
+// Edit
+router.put('/:id', bodyParser.json(), async(req, res)=>{
+  const body = req.body
+  const edit = `
+      UPDATE users
+      SET fullname = ?, email = ?, phonenumber = ?, password = ?
+      WHERE id = ${req.params.id}
+  `
+
+  let generateSalt = await bcrypt.genSalt()
+  body.password = await bcrypt.hash(body.password, generateSalt)
+  db.query(edit, [body.username, body.emailAddress, body.phone_number, body.password], (err, result)=>{
+      if (err) throw err
+      res.json({
+          status: 204,
+          msg: 'User has been edited successfully',
+          users: result
+      })
+  })
+})
 
 module.exports = router;

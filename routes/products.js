@@ -60,4 +60,20 @@ router.put("/:id", (req, res) => {
   }
 });
 
+//Delete user
+router.delete('/:id', (req, res)=>{
+  const deleteProduct = `
+      DELETE FROM products WHERE id = ${req.params.id};
+  `
+
+  con.query(deleteProduct, (err, result)=>{
+      if (err) throw err
+      res.json({
+          status: 204,
+          msg: 'User Deleted Successfully',
+          users: result
+      })
+  })
+})
+
 module.exports = router;
