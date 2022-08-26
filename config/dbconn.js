@@ -6,7 +6,8 @@ const connection = createConnection({
     password: process.env.dbPassword,
     port: process.env.dbPort,
     database: process.env.database,
-    multipleStatements: true
+    multipleStatements: true,
+    connectionLimit: 10
 });
 
 module.exports = connection;
