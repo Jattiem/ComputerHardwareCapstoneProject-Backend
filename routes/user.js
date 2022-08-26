@@ -21,37 +21,103 @@ router.get("/", (_req, res) => {
 
 // Register Route
 // The Route where Encryption starts
-router.post("/register", (req, res) => {
-  try {
-    let sql = "INSERT INTO users SET ?";
-    const {
-      fullname,
-      email,
-      password,
-      phonenumber
-    } = req.body;
+// router.post("/users", (req, res) => {
+//   try {
+//     let sql = "INSERT INTO users SET ?";
+//     const {
+//       fullname,
+//       email,
+//       password,
+//       phonenumber
+//     } = req.body;
 
-    // The start of hashing / encryption
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt);
+//     // The start of hashing / encryption
+//     const salt = bcrypt.genSaltSync(10);
+//     const hash = bcrypt.hashSync(password, salt);
 
-    let user = {
-      fullname,
-      email,
-      // We sending the hash value to be stored witin the table
-      password: hash,
-      phonenumber
-    };
-    con.query(sql, user, (err, result) => {
-      if (err) throw err;
-      console.log(result);
-      res.send(`User ${(user.fullname, user.email)} created successfully`);
-    });
-  } catch (error) {
-    console.log(error);
+//     let user = {
+//       fullname,
+//       email,
+//       // We sending the hash value to be stored witin the table
+//       password: hash,
+//       phonenumber
+//     };
+//     con.query(sql, user, (err, result) => {
+//       if (err) throw err;
+//       console.log(result);
+//       res.send(`User ${(user.fullname, user.email)} created successfully`);
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
+
+
+// REGISTER USER
+router.post('/users', bodyParser.json(), async(req, res)=>{
+  let bd = req.body
+  const emailQ = `
+      SELECT email FROM users WHERE ?
+  `
+  let email = {
+      email: req.body.email
   }
-});
 
+  con.query(emailQ, email, async(err, result)=>{
+      if (err) throw err
+      // VALIDATION
+      if (result.length > 0) {
+          res.json({
+              status: 400,
+              msg: "The provided email exists. Please enter another one",
+              
+          })
+      } else {
+          let generateSalt = await bcrypt.genSalt()
+          req.body.password = await bcrypt.hash(req.body.password, generateSalt)
+          let date = {
+              // date: new Date().toLocaleDateString(),
+              date: new Date().toISOString().slice(0, 10)
+            };
+          bd.join_date = date.date;  
+
+          const registerQ = `
+              INSERT INTO users(fullname, email, password, phonenumber)
+              VALUES(?, ?, ?, ?)
+          `
+      
+          db.query(registerQ, [bd.fullname, bd.email, bd.password, bd.phonenumber], (err, result)=>{
+              if (err) throw err
+              const payload = {
+                  user: {
+                      fullname: bd.fullname,
+                      email: bd.email,
+                      password: bd.password,
+                      phonenumber: bd.phonenumber
+                  }
+              };
+
+              jwt.sign(payload, process.env.jwtsecret, {expiresIn: "7d"}, (err, token)=>{
+                  if (err) throw err
+                  res.json({
+                      status: 200,
+                      msg: 'Registration Successful',
+                      token: token,
+                      users: result
+                  })
+              })
+          })
+          
+      }
+  })
+
+})
+
+
+
+
+
+/******************************************************************************************************* */
 // Login
 // The Route where Decryption happens
 router.post("/login", (req, res) => {
