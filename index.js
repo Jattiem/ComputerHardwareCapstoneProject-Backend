@@ -13,11 +13,7 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html")
 });
 
-// Display 404
-app.get("/:type", (req, res) => {
-  // res.status(200).json({ msg: "Welcome to Gaming Hardware" });
-  res.sendFile(__dirname + "/views/404.html")
-});
+
 
 const productsRoute = require("./routes/products");
 app.use("/products", productsRoute);
@@ -31,3 +27,8 @@ app.listen(app.get("port"), () => {
 });
 
 
+// Display 404
+app.get("/:type", (req, res) => {
+  // res.status(200).json({ msg: "Welcome to Gaming Hardware" });
+  res.sendFile(__dirname + "/views/404.html")
+});
