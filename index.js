@@ -6,8 +6,10 @@ app.set("port", process.env.PORT || 4000); // Set the port
 app.use(express.json()); // Enable the server to handle JSON requests
 app.use(cors()); // Dont let local development give errors
 
+// Display all endpoints
 app.get("/", (req, res) => {
-  res.status(200).json({ msg: "Welcome to Gaming Hardware" });
+  // res.status(200).json({ msg: "Welcome to Gaming Hardware" });
+  res.sendFile(__dirname + "/views/index.html")
 });
 
 const productsRoute = require("./routes/products");
@@ -20,3 +22,4 @@ app.listen(app.get("port"), () => {
   console.log(`Listening for calls on port ${app.get("port")}`);
   console.log("Press Ctrl+C to exit server");
 });
+
