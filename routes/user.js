@@ -189,29 +189,54 @@ module.exports = router;
 
 /* ----------------------/---------------------/------------------- CART ---------------------------\------------------------\------------------ */
 // GET CART PRODUCTS
-router.get('/users/:id/cart', (req, res)=>{
-  const cartQ = `
-      SELECT cart FROM users 
-      WHERE id = ${req.params.id}
-  `
+// router.get('/users/:id/cart', (req, res)=>{
+//   const cartQ = `
+//       SELECT cart FROM users 
+//       WHERE id = ${req.params.id}
+//   `
 
-  con.query(cartQ, (err, results)=>{
-      if (err) throw err
+//   con.query(cartQ, (err, results)=>{
+//       if (err) throw err
 
-      if (results[0].cart !== null) {
+//       if (results[0].cart !== null) {
+//           res.json({
+//               status: 200,
+//               cart: JSON.parse(results[0].cart)
+//           }) 
+//       } else {
+//           res.json({
+//               status: 404,
+//               message: 'There is no items in your cart',
+//               users: results
+//           })
+//       }
+//   })
+// })
+router.get("/users/:id/cart", middleware, (req, res) => {
+  try {
+    const strQuery = "SELECT cart FROM users WHERE id = ?";
+    con.query(strQuery, [req.user.id], (err, results) => {
+      if (err) throw err;
+      (function Check(a, b) {
+        a = parseInt(req.user.id);
+        b = parseInt(req.params.id);
+        if (a === b) {
+          // res.json({
+          //   status: 200,
+          //   result: results,
+          // });
+          res.send(results[0].cart);
+        } else {
           res.json({
-              status: 200,
-              cart: JSON.parse(results[0].cart)
-          }) 
-      } else {
-          res.json({
-              status: 404,
-              message: 'There is no items in your cart'
-          })
-      }
-  })
-})
-
+            msg: "Please Login",
+          });
+        }
+      })();
+    });
+  } catch (error) {
+    throw error;
+  }
+});
 
 // ADD PRODUCT TO CART
 router.post('/users/:id/cart', bodyParser.json(),(req, res)=>{
