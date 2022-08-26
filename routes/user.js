@@ -21,99 +21,36 @@ router.get("/", (_req, res) => {
 
 // Register Route
 // The Route where Encryption starts
-// router.post("/users", (req, res) => {
-//   try {
-//     let sql = "INSERT INTO users SET ?";
-//     const {
-//       fullname,
-//       email,
-//       password,
-//       phonenumber
-//     } = req.body;
+router.post("/users", (req, res) => {
+  try {
+    let sql = "INSERT INTO users SET ?";
+    const {
+      fullname,
+      email,
+      password,
+      phonenumber
+    } = req.body;
 
-//     // The start of hashing / encryption
-//     const salt = bcrypt.genSaltSync(10);
-//     const hash = bcrypt.hashSync(password, salt);
+    // The start of hashing / encryption
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
 
-//     let user = {
-//       fullname,
-//       email,
-//       // We sending the hash value to be stored witin the table
-//       password: hash,
-//       phonenumber
-//     };
-//     con.query(sql, user, (err, result) => {
-//       if (err) throw err;
-//       console.log(result);
-//       res.send(`User ${(user.fullname, user.email)} created successfully`);
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
-
-
-// REGISTER USER
-router.post('/users', bodyParser.json(), async(req, res)=>{
-  let bd = req.body
-  const emailQ = `
-      SELECT email FROM users WHERE ?
-  `
-  let email = {
-      email: req.body.email
+    let user = {
+      fullname,
+      email,
+      // We sending the hash value to be stored witin the table
+      password: hash,
+      phonenumber
+    };
+    con.query(sql, user, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      res.send(`User ${(user.fullname, user.email)} created successfully`);
+    });
+  } catch (error) {
+    console.log(error);
   }
-
-  con.query(emailQ, email, async(err, result)=>{
-      if (err) throw err
-      // VALIDATION
-      if (result.length > 0) {
-          res.json({
-              status: 400,
-              msg: "The provided email exists. Please enter another one",
-              
-          })
-      } else {
-          let generateSalt = await bcrypt.genSalt()
-          req.body.password = await bcrypt.hash(req.body.password, generateSalt)
-          let date = {
-              // date: new Date().toLocaleDateString(),
-              date: new Date().toISOString().slice(0, 10)
-            };
-          bd.join_date = date.date;  
-
-          const registerQ = `
-              INSERT INTO users(fullname, email, password, phonenumber)
-              VALUES(?, ?, ?, ?)
-          `
-      
-          db.query(registerQ, [bd.fullname, bd.email, bd.password, bd.phonenumber], (err, result)=>{
-              if (err) throw err
-              const payload = {
-                  user: {
-                      fullname: bd.fullname,
-                      email: bd.email,
-                      password: bd.password,
-                      phonenumber: bd.phonenumber
-                  }
-              };
-
-              jwt.sign(payload, process.env.jwtsecret, {expiresIn: "7d"}, (err, token)=>{
-                  if (err) throw err
-                  res.json({
-                      status: 200,
-                      msg: 'Registration Successful',
-                      token: token,
-                      users: result
-                  })
-              })
-          })
-          
-      }
-  })
-
-})
-
-
+});
 
 
 
@@ -246,3 +183,161 @@ router.put('/:id', bodyParser.json(), async(req, res)=>{
 })
 
 module.exports = router;
+
+
+
+
+/* ----------------------/---------------------/------------------- CART ---------------------------\------------------------\------------------ */
+// GET CART PRODUCTS
+router.get('/users/:id/cart', (req, res)=>{
+  const cartQ = `
+      SELECT cart FROM users 
+      WHERE id = ${req.params.id}
+  `
+
+  con.query(cartQ, (err, results)=>{
+      if (err) throw err
+
+      if (results[0].cart !== null) {
+          res.json({
+              status: 200,
+              cart: JSON.parse(results[0].cart)
+          }) 
+      } else {
+          res.json({
+              status: 404,
+              message: 'There is no items in your cart'
+          })
+      }
+  })
+})
+
+
+// ADD PRODUCT TO CART
+router.post('/users/:id/cart', bodyParser.json(),(req, res)=>{
+  let bd = req.body
+  const cartQ = `
+      SELECT cart FROM users 
+      WHERE id = ${req.params.id}
+  `
+
+  con.query(cartQ, (err, results)=>{
+      if (err) throw err
+      if (results.length > 0) {
+          let cart;
+          if (results[0].cart == null) {
+              cart = []
+          } else {
+              cart = JSON.parse(results[0].cart)
+          }
+          let product = {
+              "cart_id" : cart.length + 1,
+              "title" : bd.title,
+              "category" : bd.category,
+              "description" : bd.description,
+              "image" : bd.image,
+              "price" : bd.price,
+              "created_by" : bd.created_by
+          }
+          cart.push(product);
+          const query = `
+              UPDATE users
+              SET cart = ?
+              WHERE id = ${req.params.id}
+          `
+
+          db.query(query , JSON.stringify(cart), (err, results)=>{
+              if (err) throw err
+              res.json({
+                  status: 200,
+                  results: 'Product successfully added into cart',
+                  users: results
+              })
+          })
+      } else {
+          res.json({
+              status: 404,
+              results: 'There is no user with that id'
+          })
+      }
+  })
+})
+
+// DELETE CART
+router.delete('/users/:id/cart', (req,res)=>{
+  const delCart = `
+      SELECT cart FROM users 
+      WHERE id = ${req.params.id}
+  `
+  db.query(delCart, (err,results)=>{
+      if(err) throw err;
+      if(results.length >0){
+          const query = `
+              UPDATE users 
+              SET cart = null 
+              WHERE id = ${req.params.id}
+          `
+          con.query(query,(err,results)=>{
+              if(err) throw err
+              res.json({
+                  status:200,
+                  results: `Successfully cleared the cart`,
+                  users: results
+              })
+          });
+      }else{
+          res.json({
+              status:400,
+              result: `There is no user with that ID`
+          });
+      }
+  })
+})
+
+router.delete('/users/:id/cart/:cartId', (req,res)=>{
+      const delSingleCartProd = `
+          SELECT cart FROM users 
+          WHERE id = ${req.params.id}
+      `
+      con.query(delSingleCartProd, (err,results)=>{
+          if(err) throw err;
+
+          if(results.length > 0){
+              if(results[0].cart != null){
+
+                  const result = JSON.parse(results[0].cart).filter((cart)=>{
+                      return cart.cart_id != req.params.cartId;
+                  })
+                  result.forEach((cart,i) => {
+                      cart.cart_id = i + 1
+                  });
+                  const query = `
+                      UPDATE users 
+                      SET cart = ? 
+                      WHERE id = ${req.params.id}
+                  `
+
+                  con.query(query, [JSON.stringify(result)], (err,results)=>{
+                      if(err) throw err;
+                      res.json({
+                          status:200,
+                          result: "Successfully deleted the selected item from cart",
+                          users: results
+                      });
+                  })
+
+              }else{
+                  res.json({
+                      status:400,
+                      result: "This user has an empty cart"
+                  })
+              }
+          }else{
+              res.json({
+                  status:400,
+                  result: "There is no user with that id"
+              });
+          }
+      })
+
+})
