@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 });
 
 // Display 404
-app.get("/:type", (req, res) => {
+app.get("/404", (req, res) => {
   // res.status(200).json({ msg: "Welcome to Gaming Hardware" });
   res.sendFile(__dirname + "/views/404.html")
 });
