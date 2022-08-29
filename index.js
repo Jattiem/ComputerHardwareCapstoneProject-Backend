@@ -90,7 +90,7 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
 
 router.delete('/products/:id', (req, res)=>{
     const deleteUser = `
-        DELETE FROM products WHERE id = ${req.params.id};
+        DELETE FROM users WHERE id = ${req.params.id};
         ALTER TABLE users AUTO_INCREMENT = 1;
     `
 
