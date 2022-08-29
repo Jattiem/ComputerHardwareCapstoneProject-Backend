@@ -10,6 +10,7 @@ const app = express()
 const router = express.Router()
 
 app.set('Port', process.env.PORT)
+
 app.use(express.static('view'))
 app.use((req, res, next)=>{
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -63,27 +64,6 @@ router.get('/products/:id', (req, res)=>{
 })
 
 
-
-// --------------------- GET WEAPONS FROM ERA ---------------------- //
-// router.get('/eras/weapons/:id', (req, res)=>{
-//     const getSingle = `
-//         SELECT w.weapon_id,w.name,w.image,e.era_id FROM weapons w
-//         INNER JOIN eras e
-//         ON w.eraID = e.era_id
-//         WHERE w.eraID = ${req.params.id}
-//         LIMIT 3
-//     `
-
-//     db.query(getSingle, (err, results)=>{
-//         if (err) throw err
-//         res.json({
-//             status: 200,
-//             era_weapons: results
-//         })
-//     })
-// })
-
-
 // Edit Products
 router.put('/products/:id', bodyParser.json(),(req, res)=>{
     const edit = `
@@ -107,78 +87,6 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
         }
     })
 })
-
-
-/* ============================================================== WEAPONS ====================================================================== */
-// --------------------- GET ALL WEAPONS ---------------------- //
-// router.get('/weapons', (req, res)=>{
-//     const getAll = `
-//         SELECT * FROM weapons
-//     `
-
-//     db.query(getAll, (err, results)=>{
-//         if (err) throw err
-//         res.json({
-//             status: 200,
-//             weapons: results
-//         })
-//     })
-// })
-
-
-// --------------------- GET SINGLE WEAPON ---------------------- //
-// router.get('/weapons/:id', (req, res)=>{
-//     const getSingle = `
-//         SELECT * FROM weapons WHERE weapon_id = ${req.params.id}
-//     `
-
-//     db.query(getSingle, (err, results)=>{
-//         if (err) throw err
-//         res.json({
-//             status: 200,
-//             weapon: results
-//         })
-//     })
-// })
-
-
-
-// --------------------- ADD WEAPON ---------------------- //
-// router.post('/weapons', bodyParser.json(), (req, res)=>{
-//     const add = `
-//         INSERT INTO weapons(name, description, image, eraID)
-//         VALUES(?, ?, ?, ?)
-//     `
-
-//     db.query(add, [req.body.name, req.body.description, req.body.image, req.body.eraID], (err, results)=>{
-//         if (err) throw err
-//         res.json({
-//             status: 204,
-//             msg: 'Weapon added successfully'
-//         })
-//     })
-// })
-
-
-
-// --------------------- GET WEAPONS BY ERA ---------------------- //
-// router.get('/weapons/era/:eraID', (req, res)=>{
-//     const getSingle = `
-//         SELECT w.weapon_id,w.name,w.description,w.image,w.eraID,e.era_name FROM weapons w
-//         INNER JOIN eras e
-//         ON w.eraID = e.era_id
-//         WHERE w.eraID = ${req.params.eraID}
-//     `
-
-//     db.query(getSingle, (err, results)=>{
-//         if (err) throw err
-//         res.json({
-//             status: 200,
-//             weapons_era: results
-//         })
-//     })
-// })
-
 
 // Users
 // All Users
@@ -231,14 +139,14 @@ router.post('/users', bodyParser.json(), (req, res)=>{
         } else {
             let generateSalt = await bcrypt.genSalt()
             body.password = await bcrypt.hash(body.password, generateSalt)
-            // body.dateJoined = new Date().toISOString().slice(0, 10)
+            body.dateJoined = new Date().toISOString().slice(0, 10)
 
             const add = `
-                INSERT INTO users(fullname, email, phonenumber, password)
-                VALUES(?, ?, ?, ?)
+                INSERT INTO users(fullname, email,password, phonenumber,userRole,dateJoined,cart)
+                VALUES(?, ?, ?, ?,?,?,?)
             `
 
-            db.query(add, [body.fullname, body.email, body.phonenumber, body.password], (err, results)=>{
+            db.query(add, [body.fullname, body.email,body.password , body.phonenumber,body.userRole, body.dateJoined, body.cart ], (err, results)=>{
                 if (err) throw err
                 res.json({
                     status: 204,
@@ -278,9 +186,11 @@ router.patch('/users', bodyParser.json(), (req, res)=>{
                     user: {
                         fullname: results[0].fullname,
                         email: results[0].email,
+                        password: results[0].password,
                         phonenumber: results[0].phonenumber,
-                        password: results[0].password
-                        // dateJoined: results[0].dateJoined
+                        userRole: results[0].userRole,
+                        dateJoined: results[0].dateJoined,
+                        cart: results[0].cart
                     }
                 };
 
@@ -320,13 +230,13 @@ router.put('/users/:id', bodyParser.json(), async(req, res)=>{
     const body = req.body
     const edit = `
         UPDATE users
-        SET fullname = ?, email = ?, phonenumber = ?, password = ?
+        SET fullname = ?, email = ?,password = ? , phonenumber = ?, userRole = ?, dateJoined = ? , cart = ?
         WHERE id = ${req.params.id}
     `
 
     let generateSalt = await bcrypt.genSalt()
     body.password = await bcrypt.hash(body.password, generateSalt)
-    db.query(edit, [body.fullname, body.email, body.phonenumber, body.password], (err, results)=>{
+    db.query(edit, [body.fullname, body.email,body.password , body.phonenumber, body.userRole , body.dateJoined , body.cart ], (err, results)=>{
         if (err) throw err
         res.json({
             status: 204,
@@ -389,7 +299,6 @@ router.post('/users/:id/cart', bodyParser.json(),(req, res)=>{
                 "description": bd.description,
                 "img": bd.img,
                 "price": bd.price
-                // "eraID": bd.eraID
             }
             cart.push(added);
             const query = `
