@@ -72,7 +72,7 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
        WHERE id = ${req.params.id}
     `
 
-    db.query(edit, [req.body.era_name, req.body.era_period, req.body.history], (err, results)=>{
+    db.query(edit, [req.body.brand, req.body.Model, req.body.description, req.body.price, req.body.img, req.body.category], (err, results)=>{
         if (err) throw err
         if (req.params.id > 5) {
             res.json({
@@ -87,6 +87,22 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
         }
     })
 })
+
+router.delete('/products/:id', (req, res)=>{
+    const deleteUser = `
+        DELETE FROM products WHERE id = ${req.params.id};
+        ALTER TABLE users AUTO_INCREMENT = 1;
+    `
+
+    db.query(deleteUser, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 204,
+            msg: 'User Deleted Successfully'
+        })
+    })
+})
+
 
 // Users
 // All Users
@@ -143,7 +159,7 @@ router.post('/users', bodyParser.json(), (req, res)=>{
 
             const add = `
                 INSERT INTO users(fullname, email,password, phonenumber,userRole,dateJoined,cart)
-                VALUES(?, ?, ?, ?,?,?,?)
+                VALUES(?, ?, ?, ?, ?, ?, ?)
             `
 
             db.query(add, [body.fullname, body.email,body.password , body.phonenumber,body.userRole, body.dateJoined, body.cart ], (err, results)=>{
