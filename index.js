@@ -87,7 +87,47 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
         }
     })
 })
-
+/******************************************************************************************************************************** */
+router.post("/products", bodyParser.json(), (req, res) => {
+    try {
+      const strQry = `INSERT INTO products (brand, Model, img, description, category, price) VALUES (? , ? , ? , ? , ? , ?);`;
+  
+      const products = {
+        brand: req.body.brand,
+        Model: req.body.Model,
+        img: req.body.img,
+        description: req.body.description,
+        category: req.body.category,
+        price: req.body.price,
+      };
+  
+      db.query(
+        strQry,
+        [
+          products.brand,
+          products.Model,
+          products.img,
+          products.description,
+          products.category,
+          products.price,
+        ],
+        (err, results) => {
+          if (err) throw err;
+  
+          res.json({
+            results: results,
+            msg: "Added",
+          });
+        }
+      );
+    } catch (error) {
+      res.status(400).json({
+        error
+      });
+    }
+  });
+  
+/**************************************************************************************** */
 router.delete('/products/:id', (req, res)=>{
     const deleteUser = `
         DELETE FROM users WHERE id = ${req.params.id};
