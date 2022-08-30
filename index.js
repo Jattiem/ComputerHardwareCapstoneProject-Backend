@@ -178,13 +178,13 @@ router.post('/users', bodyParser.json(), (req, res)=>{
 router.patch('/users', bodyParser.json(), (req, res)=>{
     const body = req.body
     const login = `
-        SELECT * FROM users WHERE ?
+        SELECT * FROM users WHERE email = ?
     `
 
     let email = {
         email: body.email
     }
-    db.query(login, email, async(err, results)=>{
+    db.query(login, email.email, async(err, results)=>{
         if (err) throw err
         if (results.length === 0) {
             res.json({
