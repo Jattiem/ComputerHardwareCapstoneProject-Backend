@@ -77,12 +77,12 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
         if (req.params.id > 5) {
             res.json({
                 status: 404,
-                msg: 'There is no era with that id'
+                msg: 'There is no product with that id'
             })
         } else {
             res.json({
                 status: 204,
-                msg: "Era has been edited successfully"
+                msg: "Product has been edited successfully"
             })
         }
     })
@@ -136,7 +136,7 @@ router.delete('/products/:id', (req, res)=>{
         if (err) throw err
         res.json({
             status: 204,
-            msg: 'User Deleted Successfully',
+            msg: 'Product Deleted Successfully',
             deleteUser: results
         })
     })
