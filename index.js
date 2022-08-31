@@ -130,15 +130,14 @@ router.post("/products", bodyParser.json(), (req, res) => {
 /**************************************************************************************** */
 router.delete('/products/:id', (req, res)=>{
     const deleteUser = `
-        DELETE FROM users WHERE id = ${req.params.id};
-        ALTER TABLE users AUTO_INCREMENT = 1;
-    `
+        DELETE FROM products WHERE id = ${req.params.id}`;
 
     db.query(deleteUser, (err, results)=>{
         if (err) throw err
         res.json({
             status: 204,
-            msg: 'User Deleted Successfully'
+            msg: 'User Deleted Successfully',
+            deleteUser: results
         })
     })
 })
