@@ -79,11 +79,6 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
                 status: 404,
                 msg: 'Product has been edited successfully'
             })
-        } else {
-            res.json({
-                status: 204,
-                msg: 'There is no product with that id'
-            })
         }
     })
 })
