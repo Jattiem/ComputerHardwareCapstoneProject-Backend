@@ -208,7 +208,7 @@ router.post('/users', bodyParser.json(), (req, res)=>{
 
 
 // Login User
-router.patch('/users', bodyParser.json(), (req, res)=>{
+router.post('/users/login', bodyParser.json(), (req, res)=>{
     const body = req.body
     const login = `
         SELECT * FROM users WHERE email = ?
