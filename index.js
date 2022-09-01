@@ -153,7 +153,6 @@ router.get('/users', (req, res)=>{
         })
     })
 })
-
 // Single User
 router.get('/users/:id', (req, res)=>{
     const getSingle = `
@@ -305,15 +304,21 @@ router.get('/users/:id/cart', (req, res)=>{
         SELECT cart FROM users 
         WHERE id = ${req.params.id}
     `
-
     db.query(favouritesQ, (err, results)=>{
         if (err) throw err
-
-        if (results[0].cart !== null) {
-            res.json({
-                status: 200,
-                cart: JSON.parse(results[0].cart)
-            }) 
+        if (results.length > 0) {
+            if (results[0].cart != null) {
+                res.json({
+                    status: 200,
+                    // cart: (results[0].cart)
+                    cart: JSON.parse(results[0].cart)
+                }) 
+            } else {
+                res.json({
+                    status: 404,
+                    message: 'There is no items in cart'
+                })
+            }
         } else {
             res.json({
                 status: 404,
@@ -392,7 +397,6 @@ router.delete('/users/:id/cart', (req,res)=>{
                 res.json({
                     status:200,
                     results: `Successfully cleared the cart`,
-                    // delfavourites: results
                 })
             });
         }else{
@@ -404,7 +408,7 @@ router.delete('/users/:id/cart', (req,res)=>{
     })
 })
 
-router.delete('/users/:id/cart/:id', (req,res)=>{
+router.delete('/users/:id/cart/:itemid', (req,res)=>{
         const delSinglefavouritesProd = `
             SELECT cart FROM users 
             WHERE id = ${req.params.id}
@@ -416,7 +420,7 @@ router.delete('/users/:id/cart/:id', (req,res)=>{
                 if(results[0].cart != null){
 
                     const result = JSON.parse(results[0].cart).filter((cart)=>{
-                        return cart.id != req.params.id;
+                        return cart.id != req.params.itemid;
                     })
                     result.forEach((cart,i) => {
                         cart.id = i + 1
