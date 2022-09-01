@@ -77,12 +77,12 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
         if (req.params.id > 5) {
             res.json({
                 status: 404,
-                msg: 'There is no product with that id'
+                msg: 'Product has been edited successfully'
             })
         } else {
             res.json({
                 status: 204,
-                msg: "Product has been edited successfully"
+                msg: 'There is no product with that id'
             })
         }
     })
