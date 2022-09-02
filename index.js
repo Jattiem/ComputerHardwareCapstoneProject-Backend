@@ -77,7 +77,8 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
         if (req.params.id > 5) {
             res.json({
                 status: 404,
-                msg: 'Product has been edited successfully'
+                msg: 'Product has been edited successfully',
+                results: results
             })
         }
     })
@@ -111,7 +112,7 @@ router.post("/products", bodyParser.json(), (req, res) => {
   
           res.json({
             results: results,
-            msg: "Added",
+            msg: "item has been Added",
           });
         }
       );
