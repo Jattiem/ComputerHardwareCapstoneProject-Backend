@@ -19,8 +19,11 @@ app.use((req, res, next)=>{
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     next();
 });
-
-app.use(router, cors(), express.json(), bodyParser.urlencoded({ extended: true }));
+app.use(cors({
+    origin: ['http://localhost:8080', 'http://127.0.0.1:8080', ],
+    credentials: true
+}));
+app.use(router, express.json(), bodyParser.urlencoded({ extended: true }));
 
 app.listen(app.get('Port'), ()=>{console.log(`Server is running on port ${app.get('Port')}`);})
 
