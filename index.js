@@ -213,48 +213,49 @@ router.post('/users', bodyParser.json(), (req, res)=>{
 
 // Login User
 router.post('/users/login', bodyParser.json(), (req, res)=>{
-    const body = req.body
-    const login = `
-        SELECT * FROM users WHERE email = ?
-    `
-
-    let email = {
-        email: body.email
-    }
-    db.query(login, email.email, async(err, results)=>{
-        if (err) throw err
-        if (results.length === 0) {
-            res.json({
-                status: 400,
-                msg: 'Email Not Found'
+    const {email, password} = req.body
+    const login = `SELECT * FROM users WHERE email = ${email};`;
+    db.query(login, async(err, results)=>{
+        if (err) {
+            res.status(400).json({
+                err: err
             })
-        } else {
-            if (await bcrypt.compare(body.password, results[0].password) == false) {
+        }else {
+            if (results.length === 0 || results === null || 
+                results === undefined) {
                 res.json({
-                    status: 404,
-                    msg: 'Password is Incorrect'
+                    status: 400,
+                    msg: 'Email Not Found'
                 })
             } else {
-                const payload = {
-                    user: {
-                        fullname: results[0].fullname,
-                        email: results[0].email,
-                        password: results[0].password,
-                        phonenumber: results[0].phonenumber,
-                        userRole: results[0].userRole,
-                        dateJoined: results[0].dateJoined,
-                        cart: results[0].cart
-                    }
-                };
-
-                jwt.sign(payload, process.env.jwtsecret, {expiresIn: "7d"}, (err, token)=>{
-                    if (err) throw err
+                if (await bcrypt.compare(password, results[0].password) == false) {
                     res.json({
-                        status: 200,
-                        user: results,
-                        token: token
+                        status: 404,
+                        msg: 'Password is Incorrect'
                     })
-                })
+                } else {
+                    console.log(results[0]);
+                    const payload = {
+                        user: {
+                            fullname: results[0].fullname,
+                            email: results[0].email,
+                            password: results[0].password,
+                            phonenumber: results[0].phonenumber,
+                            userRole: results[0].userRole,
+                            dateJoined: results[0].dateJoined,
+                            cart: results[0].cart
+                        }
+                    };
+    
+                    jwt.sign(payload, process.env.jwtsecret, {expiresIn: "7d"}, (err, token)=>{
+                        if (err) throw err
+                        res.json({
+                            status: 200,
+                            user: results,
+                            token: token
+                        })
+                    })
+                }
             }
         }
     })

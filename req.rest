@@ -1,3 +1,12 @@
-Get http://localhost:4000/products
+Get http://localhost:3000/products
 ###
+GET http://localhost:3000/users
+###
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+    email: 'mom@gmail.com',
+    password: '1234'
+}
 
