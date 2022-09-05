@@ -175,8 +175,8 @@ router.get('/users/:id', (req, res)=>{
 // Register User
 router.post('/users', bodyParser.json(), (req, res)=>{
     const body = req.body;
-    if (userRole === null || userRole === undefined || userRole.length === 0){
-        userRole = "user";
+    if (body.userRole === null || body.userRole === undefined || body.userRole.length === 0){
+        body.userRole = "user";
     }
     const email = `
         SELECT * FROM users WHERE email = ?
@@ -217,7 +217,7 @@ router.post('/users', bodyParser.json(), (req, res)=>{
 // Login User
 router.post('/users/login', bodyParser.json(), (req, res)=>{
     const {email, password} = req.body
-    const login = `SELECT * FROM users WHERE email = ${email};`;
+    const login = `SELECT * FROM users WHERE email = '${email}'`;;
     db.query(login, async(err, results)=>{
         if (err) {
             res.status(400).json({
@@ -250,7 +250,7 @@ router.post('/users/login', bodyParser.json(), (req, res)=>{
                         }
                     };
     
-                    jwt.sign(payload, process.env.jwtsecret, {expiresIn: "7d"}, (err, token)=>{
+                    jwt.sign(payload, process.env.tokenkey, {expiresIn: "7d"}, (err, token)=>{
                         if (err) throw err
                         res.json({
                             status: 200,
