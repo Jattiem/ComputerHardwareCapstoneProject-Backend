@@ -174,7 +174,10 @@ router.get('/users/:id', (req, res)=>{
 
 // Register User
 router.post('/users', bodyParser.json(), (req, res)=>{
-    const body = req.body
+    const body = req.body;
+    if (userRole === null || userRole === undefined || userRole.length === 0){
+        userRole = "user";
+    }
     const email = `
         SELECT * FROM users WHERE email = ?
     `
