@@ -86,6 +86,25 @@ router.put('/products/:id', bodyParser.json(),(req, res)=>{
         }
     })
 })
+// Edit Users
+router.put('/users/:id', bodyParser.json(),(req, res)=>{
+    const edit = `
+       UPDATE users
+       SET fullname = ?, email = ?, phonenumber = ?, userRole = ?
+       WHERE id = ${req.params.id}
+    `
+
+    db.query(edit, [req.body.fullname, req.body.email, req.body.phonenumber, req.body.userRole], (err, results)=>{
+        if (err) throw err
+        if (req.params.id > 5) {
+            res.json({
+                status: 404,
+                msg: 'User has been edited successfully',
+                results: results
+            })
+        }
+    })
+})
 /******************************************************************************************************************************** */
 router.post("/products", bodyParser.json(), (req, res) => {
     try {
@@ -140,7 +159,19 @@ router.delete('/products/:id', (req, res)=>{
         })
     })
 })
+router.delete('/users/:id', (req, res)=>{
+    const deleteUser = `
+        DELETE FROM users WHERE id = ${req.params.id}`;
 
+    db.query(deleteUser, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 204,
+            msg: 'User Deleted Successfully',
+            deleteUser: results
+        })
+    })
+})
 
 // Users
 // All Users
