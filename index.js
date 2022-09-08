@@ -105,7 +105,6 @@ router.put('/users/:id', bodyParser.json(),(req, res)=>{
         }
     })
 })
-/******************************************************************************************************************************** */
 router.post("/products", bodyParser.json(), (req, res) => {
     try {
       const strQry = `INSERT INTO products (brand, Model, img, description, category, price) VALUES (? , ? , ? , ? , ? , ?);`;
@@ -145,7 +144,6 @@ router.post("/products", bodyParser.json(), (req, res) => {
     }
   });
   
-/**************************************************************************************** */
 router.delete('/products/:id', (req, res)=>{
     const deleteUser = `
         DELETE FROM products WHERE id = ${req.params.id}`;
