@@ -133,7 +133,7 @@ router.post("/products", bodyParser.json(), (req, res) => {
   
           res.json({
             results: results,
-            msg: "item has been Added",
+            msg: "Item has been Added",
           });
         }
       );
@@ -439,7 +439,7 @@ router.delete('/users/:id/cart', (req,res)=>{
         }else{
             res.json({
                 status:400,
-                result: `There is no user with that ID`
+                results: `There is no user with that ID`
             });
         }
     })
